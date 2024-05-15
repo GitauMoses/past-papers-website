@@ -4,15 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <title></title>
     <style>
-        body {
-            background-color: #EDE8F5;
-            color: #213e8d;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+        
         .sticky-column {
             position: -webkit-sticky;
             position: sticky;
@@ -48,6 +43,40 @@
                 order: -1;
             }
         }
+        .footer {
+            background-color: #7091E6;
+            color: #F5EEE6;
+        }
+        .fab {
+            font-size: 24px;
+            color: #000000;
+        }
+        .fa-twitter {
+            color: #1DA1F2;
+        }
+        .fa-instagram {
+            color: #E4405F;
+        }
+        .fa-linkedin {
+            color: #0A66C2;
+        }
+        .fa-facebook {
+            color: #1877F2;
+        }
+        .fa-github {
+            color: #333333;
+        }
+        .fa-youtube {
+            color: #FF0000;
+        }
+        .fa-whatsapp {
+            color: #25D366;
+        }
+        
+        .text-black {
+            color: #000000 !important; 
+}
+
     </style>
 </head>
 <body>
@@ -57,7 +86,7 @@
             <div class="col-lg-3 col-md-3 col-sm-0 sticky-column hide-on-sm">
                 <!-- Content for sticky column -->
                 <h3>Sticky Column</h3>
-                <p>Welcome {{user[0]}}</p>
+                <p>Welcome {{user.name}}</p>
                 <p>This column will stick to the left side of the page.</p>
 
                <a href="/logout" class="btn" style="background-color: #b7bdcc;">Log Out</a>
@@ -76,7 +105,28 @@
                         <button style="margin: 0%;" class="navbar-toggler side-toggler show-on-sm" type="button" data-bs-toggle="collapse" data-bs-target="#sideColumnCollapse" aria-controls="sideColumnCollapse" aria-expanded="false" aria-label="Toggle side column">
                             <span class="navbar-toggler-icon"></span>
                         </button>
-                        <a class="navbar-brand" href="#" style="text-align: start; color: #080808;">Logo</a>
+                        <a class="navbar-brand" href="#" style="text-align: start; color: #7b4242;">PastPaper Hub</a>
+                         <!-- Search form -->
+                         <!-- Search form -->
+                        <form class="d-flex ms-auto my-2 my-lg-0" action="{{ url_for('search') }}" method="GET">
+                            <input class="form-control me-2" type="search" placeholder="Search paper by unit code" aria-label="Search" name="q">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                         </form>
+                         <!-- Search form -->
+            <form class="d-flex ms-auto my-2 my-lg-0" action="{{ url_for('search') }}" method="GET">
+                <input class="form-control me-2" type="search" placeholder="Search paper by unit code" aria-label="Search" name="q">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+                         <!-- Search form -->
+            <form class="d-flex ms-auto my-2 my-lg-0" action="{{ url_for('search') }}" method="GET">
+                <input class="form-control me-2" type="search" placeholder="Search paper by unit code" aria-label="Search" name="q">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+                         <!-- Search form -->
+            <form class="d-flex ms-auto my-2 my-lg-0" action="{{ url_for('search') }}" method="GET">
+                <input class="form-control me-2" type="search" placeholder="Search paper by unit code" aria-label="Search" name="q">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
                         <div>
                             <ul class="navbar-nav">
                                 <li class="nav-item dropdown">
@@ -93,7 +143,35 @@
                         </div>
                     </div>
                 </nav>
+                <!-- Main Content Column -->
+                <div class="col-lg-9 col-md-9 col-sm-12">
+                    <h2>Papers</h2>
+                    <div class="row">
+                        <!-- Iterate over papers and display each as a card -->
+                        {% for paper in papers %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 shadow">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ paper.unit_name }}</h5>
+                                    <p class="card-text">Uploaded by: {{ paper.uploaded_by }}</p>
+                                    <p class="card-text">Unit Name: {{ paper.unit_name }}</p>
+                                    <p class="card-text">Unit Code: {{ paper.unitCode }}</p>
+                                    <p class="card-text">Description: {{ paper.description }}</p>
+                                </div>
+                                <div class="card-footer bg-transparent border-0">
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ url_for('view', id=paper.id) }}" target="_blank" class="btn btn-primary">View Paper</a>
+                                        <a href="{{ url_for('download', id=paper.id) }}" class="btn btn-success">Download</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% endfor %}
+                    </div>
+                </div>
 
+                
             </div>
         </div>
     </div>
@@ -170,6 +248,25 @@
             </div>
         </div>
     </div>
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <!-- Company Information -->
+                    <p style="text-decoration-color: #000;">PastPaper Hub| P.O.Box: 43844-00100. Nairob | Phone: +254725072132 | Email: mosesgitaukam@gmail.com</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <!-- Social Media Icons -->
+                    <a href="https://twitter.com/mosesgitaukam" class="me-3"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.instagram.com/monsey_moses/" class="me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.linkedin.com/in/moses-gitau-685b8b260/"><i class="fab fa-linkedin"></i></a>
+                    <!-- github -->
+                    <a href="https://github.com/GitauMoses" class="me-3"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
 
     <script src="../static/js/bootstrap.min.js"></script>
 </body>

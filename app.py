@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import*
 import os
 import pymysql
+import pymysql.cursors
 from werkzeug.utils import secure_filename
 import fitz
 
@@ -19,34 +20,8 @@ DB_NAME = 'past_papersdb'
 
 # Connect to the database
 def connect_db():
-    return pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME)
+    return pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME, cursorclass=pymysql.cursors.DictCursor)
 
-# Main page
-@app.route('/main')
-def main():
-    if 'email' in session:  # Check if 'email' is in session
-        # Retrieve user details from session
-        user_email = session['email']
-        db = connect_db()
-        cursor = db.cursor()
-        cursor.execute("SELECT name, email FROM users WHERE email = %s", (user_email,))
-        user = cursor.fetchone()
-        
-        # Fetch papers uploaded by the user
-        cursor.execute("SELECT * FROM papers WHERE uploaded_by = %s", (user_email,))
-        papers = cursor.fetchall()
-        
-        db.close()
-
-        if user:
-            # Pass user details and papers to 'main.html'
-            return render_template('main.html', user=user, papers=papers)
-        else:
-            return render_template('main.html', error='User not found')
-    else:
-        return redirect(url_for('login'))
-
-# Login
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -61,13 +36,45 @@ def login():
 
         if user:
             # Store user's email and name in session
-            session['email'] = user[1]  # Email is stored at index 1
-            session['name'] = user[0]   # Name is stored at index 0
-            return redirect(url_for('main'))  # Redirect to 'main' route after successful login
+            session['email'] = user['email']  # Email is stored at index 1
+            session['name'] = user['name']   # Name is stored at index 0
+            
+            # Fetch papers if authentication is successful
+            db = connect_db()
+            cursor = db.cursor()
+            cursor.execute("SELECT * FROM papers")
+            papers = cursor.fetchall()
+            db.close()
+            
+            # Pass user and papers to the template
+            return render_template('main.html', user=user, papers=papers)  
         else:
             return render_template('index.html', error='Invalid email or password')
     return render_template('index.html')
 
+
+# Main page
+@app.route('/main')
+def main():
+    if 'email' in session:  # Check if 'email' is in session
+        # Retrieve user details from session
+        user_email = session['email']
+        db = connect_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT name, email FROM users WHERE email = %s", (user_email,))
+        user = cursor.fetchone()
+        cursor.execute("SELECT * FROM papers")
+        papers = cursor.fetchall()
+        
+        db.close()
+
+        if user:
+            # Pass user details and papers to 'main.html'
+            return render_template('main.html', user=user, papers=papers)
+        else:
+            return render_template('main.html', error='User not found')
+    else:
+        return redirect(url_for('login'))
 # Logout
 @app.route('/logout')
 def logout():
@@ -120,7 +127,7 @@ def upload_file():
             # Save file details in the database
             db = connect_db()
             cursor = db.cursor()
-            cursor.execute("INSERT INTO papers (unitCode, unit_name, school, year, description, file_path, uploaded_by) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            cursor.execute("INSERT INTO papers (unitCode, unit_name, school, year, description, filepath, uploaded_by) VALUES (%s, %s, %s, %s, %s, %s, %s)",
                            (unitCode, unit_name, school, year, description, filepath, user_email))
             db.commit()
             db.close()
@@ -130,14 +137,62 @@ def upload_file():
             return render_template('main.html', error='No file selected')
     else:
         return redirect(url_for('login'))
+# View route
+@app.route('/view/<int:id>')
+def view(id):
+    if 'email' in session:
+        db = connect_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM papers WHERE id = %s", (id,))
+        paper = cursor.fetchone()
+        db.close()
+        
+        if paper:
+            filepath = paper['filepath']
+            directory, filename = os.path.split(filepath)
+            return send_from_directory(directory, filename, as_attachment=False)
+        else:
+            return render_template('main.html', error='Paper not found')
+    else:
+        return redirect(url_for('login'))
+# Download route
+@app.route('/download/<int:id>')
+def download(id):
+    # Fetch paper details from the database based on the paper ID
+    if 'email' in session:
+        db = connect_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM papers WHERE id = %s", (id,))
+        paper = cursor.fetchone()
+        db.close()
+        
+        if paper:
+            # Get the file path from the paper details
+            filepath = paper['filepath']  # Assuming the file path is stored in the 'file_path' column
+            
+            # Provide the file for download
+            return send_file(filepath, as_attachment=True)
+        else:
+            return render_template('main.html', error='Paper not found')
+    else:
+        return redirect(url_for('login'))
+# Search Route
+@app.route('/search')
+def search():
+    search_query = request.args.get('q', '')  # Retrieve search query from request arguments
+    if search_query:
+        db = connect_db()
+        cursor = db.cursor()
+        # Perform database query to search for papers by unit code
+        cursor.execute("SELECT * FROM papers WHERE unitCode LIKE %s", ('%' + search_query + '%',))
+        papers = cursor.fetchall()
+        db.close()
+        # Render template with search results
+        return render_template('search.html', papers=papers, search_query=search_query)
+    else:
+        # If no search query provided, redirect back to the main page or display an error message
+        return redirect(url_for('main'))
+
     
-#Display Papers as cards in main.html
-@app.route('/display_papers')
-# from the paper data base get the file path
-
-
-
-
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
