@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <title></title>
+    <style>
+        body {
+            background-color: #EDE8F5;
+            color: #213e8d;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .sticky-column {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            background-color: #788fb1;
+            color: #F5EEE6;
+            padding: 20px;
+        }
+        .navbar {
+            background-color: #7091E6;
+        }
+        .navbar-brand {
+            color: #140f0a !important;
+        }
+        .navbar-nav .nav-link {
+            color: #000000 !important;
+        }
+        .navbar-toggler {
+            border-color: #000000 !important;
+        }
+        .show-on-sm {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .show-on-sm {
+                display: block;
+            }
+            .hide-on-sm {
+                display: none;
+            }
+            .navbar-toggler.side-toggler {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="-fluid">
+        <div class="row">
+            <!-- Sticky Column -->
+            <div class="col-lg-3 col-md-3 col-sm-0 sticky-column hide-on-sm">
+                <!-- Content for sticky column -->
+                <h3>Sticky Column</h3>
+                <p>Welcome {{user[0]}}</p>
+                <p>This column will stick to the left side of the page.</p>
+
+               <a href="/logout" class="btn" style="background-color: #b7bdcc;">Log Out</a>
+               <hr>
+                <!-- Upload button -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                    Upload Paper
+                </button>
+            </div>
+
+            <!-- Main Content Column -->
+            <div class="col-lg-9 col-md-9 col-sm-12">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <div class="container-fluid">
+                        <!-- Secondary Navbar Toggler for Small Screens -->
+                        <button style="margin: 0%;" class="navbar-toggler side-toggler show-on-sm" type="button" data-bs-toggle="collapse" data-bs-target="#sideColumnCollapse" aria-controls="sideColumnCollapse" aria-expanded="false" aria-label="Toggle side column">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <a class="navbar-brand" href="#" style="text-align: start; color: #080808;">Logo</a>
+                        <div>
+                            <ul class="navbar-nav">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #000000;">
+                                        School
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #ADBBDA;">
+                                        <li><a class="dropdown-item" href="#" style="color: #000000;">Engineering</a></li>
+                                        <li><a class="dropdown-item" href="#" style="color: #000000;">SPAS</a></li>
+                                        <li><a class="dropdown-item" href="#" style="color: #000000;">Education</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Side Column (Collapsed by Default on Small Screens) -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="collapse" id="sideColumnCollapse">
+                    <div class="col-lg-3 col-md-3 col-sm-12 sticky-column show-on-sm">
+                        <!-- Content for sticky column -->
+                        <h3>Sticky Column</h3>
+                        <p>Welcome {{user[0]}}</p>
+                        <p>This column will stick to the left side of the page.</p>
+
+                        <a href="/logout" class="btn" style="background-color: #b7bdcc;">Log Out</a>
+                        <hr>
+                        <!-- Upload button -->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                            Upload Paper
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal for uploading papers -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadModalLabel">Upload Paper</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Upload form -->
+                    <form action="/upload" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="unitName" class="form-label">Unit Code</label>
+                            <input type="text" class="form-control" id="unitCode" name="unitCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="unitName" class="form-label">Unit Name</label>
+                            <input type="text" class="form-control" id="unitName" name="unitName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="school" class="form-label">School</label>
+                            <select class="form-select" id="school" name="school" required>
+                                <option value="" selected disabled>Select a school</option>
+                                <option value="engineering">Engineering</option>
+                                <option value="spas">SPAS</option>
+                                <option value="education">Education</option>
+                                <option value="common">Common Unit</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="year" class="form-label">Year</label>
+                            <input type="text" class="form-control" id="year" name="year" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Upload File</label>
+                            <input class="form-control" type="file" id="file" name="file" required accept=".pdf">
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/bootstrap.min.js"></script>
+</body>
+</html>
